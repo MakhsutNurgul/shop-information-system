@@ -38,8 +38,6 @@
 * Тапсырыс статусын көру.
 git config --global user.email "maqsutnurgul.1@gmail.com"
 ## Негізгі Use Case
-git remote add origin https://github.com/MakhsutNurgul/shop-information-system.git
-https://github.com/MakhsutNurgul/shop-information-system
 
 ```text
 Клиент
@@ -78,3 +76,6 @@ https://github.com/MakhsutNurgul/shop-information-system
    ├── Тапсырыс қабылдау
    └── Сатылымды тіркеу
 ```
+## Тапсырысты орындау
+
+Тапсырыс жасалғаннан кейін жүйе оның статусын сақтайды. Сатушы тапсырысты өңдейді, ал клиент тапсырыстың орындалу жағдайын бақылай алады.
