@@ -36,8 +36,10 @@
 * Тауарды таңдау;
 * Тапсырыс беру;
 * Тапсырыс статусын көру.
-
+git config --global user.email "maqsutnurgul.1@gmail.com"
 ## Негізгі Use Case
+git remote add origin https://github.com/MakhsutNurgul/shop-information-system.git
+https://github.com/MakhsutNurgul/shop-information-system
 
 ```text
 Клиент
