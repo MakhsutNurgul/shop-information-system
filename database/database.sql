@@ -332,5 +332,10 @@ ORDER BY TABLE_NAME;
 GO
 
 -- ============================================
--- ТЕКСЕ
+-- ТЕКСЕРУ
 -- ============================================
+create table univer(
+    id int primery key,
+    name varchar(50),
+    age int check (Age >= 21));
+)
