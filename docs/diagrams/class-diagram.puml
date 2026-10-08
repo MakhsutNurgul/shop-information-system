@@ -1,0 +1,257 @@
+@startuml
+title Онлайн киім дүкені\nUML Class Diagram
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+' =========================
+' CLIENT
+' =========================
+
+class Client {
+    - id: int
+    - name: string
+    - phone: string
+    - email: string
+    - address: string
+    - password: string
+    --
+    + register(): void
+    + login(): boolean
+    + updateProfile(): void
+    + viewOrders(): List<Order>
+}
+
+' =========================
+' CART
+' =========================
+
+class Cart {
+    - id: int
+    - clientId: int
+    - created_at: datetime
+    - total: decimal
+    --
+    + addItem(product: Product, qty: int): void
+    + removeItem(productId: int): void
+    + updateQuantity(productId: int, qty: int): void
+    + clear(): void
+    + getItems(): List<CartItem>
+}
+
+' =========================
+' CART ITEM
+' =========================
+
+class CartItem {
+    - id: int
+    - cart_id: int
+    - product_id: int
+    - quantity: int
+    - price: decimal
+    --
+    + getSubtotal(): decimal
+    + updateQuantity(qty: int): void
+    + remove(): void
+}
+
+' =========================
+' PRODUCT
+' =========================
+
+class Product {
+    - id: int
+    - name: string
+    - description: text
+    - price: decimal
+    - imageUrl: string
+    - category_id: int
+    - status: string
+    --
+    + getInfo(): void
+    + updateProduct(): void
+    + isAvailable(): boolean
+}
+
+' =========================
+' CATEGORY
+' =========================
+
+class Category {
+    - id: int
+    - name: string
+    - description: string
+    --
+    + addCategory(): void
+    + updateCategory(): void
+    + deleteCategory(): void
+    + getProducts(): List<Product>
+}
+
+' =========================
+' ORDER
+' =========================
+
+class Order {
+    - id: int
+    - client_id: int
+    - order_date: datetime
+    - status: string
+    - total_amount: decimal
+    - address: string
+    - comment: string
+    --
+    + create(): void
+    + updateStatus(status: string): void
+    + cancel(): void
+    + getItems(): List<OrderItem>
+}
+
+' =========================
+' ORDER ITEM
+' =========================
+
+class OrderItem {
+    - id: int
+    - order_id: int
+    - product_id: int
+    - quantity: int
+    - price: decimal
+    --
+    + getSubtotal(): decimal
+    + getQuantity(): int
+    + getProduct(): Product
+}
+
+' =========================
+' PAYMENT
+' =========================
+
+class Payment {
+    - id: int
+    - order_id: int
+    - amount: decimal
+    - method: string
+    - status: string
+    - transaction_id: string
+    - paid_at: datetime
+    --
+    + pay(): boolean
+    + checkStatus(): void
+    + refund(): void
+}
+
+' =========================
+' WAREHOUSE
+' =========================
+
+class Warehouse {
+    - id: int
+    - name: string
+    - address: string
+    - phone: string
+    --
+    + addProduct(product: Product): void
+    + updateProduct(product: Product): void
+    + getProducts(): List<Product>
+}
+
+' =========================
+' WAREHOUSE EMPLOYEE
+' =========================
+
+class WarehouseEmployee {
+    - id: int
+    - name: string
+    - phone: string
+    - warehouse_id: int
+    --
+    + receiveProduct(product_id: int, quantity: int): void
+    + updateStock(product_id: int, quantity: int): void
+    + getWarehouseProducts(): List<Product>
+}
+
+' =========================
+' DELIVERY
+' =========================
+
+class Delivery {
+    - id: int
+    - order_id: int
+    - courier_name: string
+    - tracking_number: string
+    - delivery_address: string
+    - created_at: datetime
+    --
+    + create(): void
+    + updateStatus(status: string): void
+    + getTracking(): string
+}
+
+' =========================
+' MANAGER
+' =========================
+
+class Manager {
+    - id: int
+    - name: string
+    - phone: string
+    - email: string
+    --
+    + viewOrders(): List<Order>
+    + updateOrder(order_id: int, status: string): void
+    + manageProducts(): void
+}
+
+' =========================
+' ADMIN
+' =========================
+
+class Admin {
+    - id: int
+    - name: string
+    - email: string
+    - password: string
+    --
+    + manageUsers(): void
+    + manageProducts(): void
+    + viewReports(): void
+    + deleteOrder(): void
+}
+
+' =========================
+' RELATIONSHIPS
+' =========================
+
+Client "1" -- "1" Cart : себет қолданады
+Client "1" -- "*" Order : жасайды
+
+Cart "1" *-- "*" CartItem : құрамында
+
+CartItem "*" --> "1" Product : тауарға сілтеме
+
+Category "1" -- "*" Product : тиесілі
+
+Product "*" -- "*" Category : категориясы
+
+Order "1" *-- "*" OrderItem : құрамында
+OrderItem "*" --> "1" Product : тауар
+
+Order "1" -- "1" Payment : төлемі
+Order "1" -- "1" Delivery : жеткізіледі
+
+Warehouse "1" *-- "*" WarehouseEmployee : қызметкерлері
+
+Warehouse "1" -- "*" Product : сақтайды
+
+Manager "1" -- "*" Order : басқарады
+Manager "1" -- "*" Product : басқарады
+
+Admin "1" -- "*" Client : қолданушыларды басқарады
+Admin "1" -- "*" Product : тауарларды басқарады
+Admin "1" -- "*" Order : тапсырыстарды басқарады
+
+WarehouseEmployee "1" -- "*" Product : қорын басқарады
+
+@enduml
