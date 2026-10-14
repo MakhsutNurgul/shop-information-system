@@ -1,0 +1,69 @@
+
+@startuml
+title UML Use Case диаграммасы\nОнлайн киім дүкені
+
+left to right direction
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam ArrowColor #334155
+skinparam packageBorderColor #2563EB
+skinparam packageBackgroundColor #EFF8FF
+skinparam usecase {
+  BackgroundColor #DCEBFF
+  BorderColor #2580F5
+  FontColor #17365D
+}
+skinparam actorStyle stickman
+
+actor "Клиент\n(пайдаланушы)" as Client
+actor "Менеджер\n(қолдау / өңдеу)" as Manager
+actor "Қойма қызметкері\n(жинау / сәйкестендіру)" as Warehouse
+actor "Әкімші\n(жүйені басқару)" as Admin
+actor "Жеткізу қызметкері\n(жеткізу / жаңарту)" as Delivery
+
+rectangle "Онлайн киім дүкені жүйесі" {
+
+  usecase "Тіркелу / Жүйеге кіру" as UC1
+  usecase "Тауарларды іздеу және сүзу" as UC2
+  usecase "Себетке тауар қосу" as UC3
+  usecase "Тапсырысты рәсімдеу" as UC4
+  usecase "Онлайн төлем жасау" as UC5
+  usecase "Тапсырыс күйін көру" as UC6
+
+  usecase "Тапсырыстарды өңдеу" as UC7
+  usecase "Клиентпен байланысу" as UC8
+
+  usecase "Тапсырысты жинау" as UC9
+  usecase "QR-кодпен сәйкестендіру" as UC10
+
+  usecase "Тауарлар мен санаттарды\nбасқару" as UC11
+  usecase "Пайдаланушыларды басқару" as UC12
+  usecase "Тапсырыстарды басқару" as UC13
+
+  usecase "Тапсырысты жеткізу" as UC14
+  usecase "Жеткізу мәртебесін\nжаңарту" as UC15
+}
+
+Client -- UC1
+Client -- UC2
+Client -- UC3
+Client -- UC4
+Client -- UC5
+Client -- UC6
+
+Manager -- UC7
+Manager -- UC8
+
+Warehouse -- UC9
+Warehouse -- UC10
+
+Admin -- UC11
+Admin -- UC12
+Admin -- UC13
+
+Delivery -- UC14
+Delivery -- UC15
+
+@enduml

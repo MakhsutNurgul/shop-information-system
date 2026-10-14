@@ -335,7 +335,7 @@ GO
 -- ТЕКСЕРУ
 -- ============================================
 create table univer(
-    id int primery key,
+    id int primary key,
     name varchar(50),
     age int check (Age >= 21));
-)
+

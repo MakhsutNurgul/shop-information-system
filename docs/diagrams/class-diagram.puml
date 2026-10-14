@@ -1,257 +1,116 @@
 @startuml
-title Онлайн киім дүкені\nUML Class Diagram
-
+title Онлайн киім дүкені — дерекқор диаграммасы
+hide methods
+hide stereotypes
+skinparam linetype ortho
 skinparam classAttributeIconSize 0
 skinparam shadowing false
-skinparam linetype ortho
-
-' =========================
-' CLIENT
-' =========================
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #2563EB
+    ArrowColor #334155
+}
+skinparam nodesep 45
+skinparam ranksep 45
 
 class Client {
-    - id: int
-    - name: string
-    - phone: string
-    - email: string
-    - address: string
-    - password: string
-    --
-    + register(): void
-    + login(): boolean
-    + updateProfile(): void
-    + viewOrders(): List<Order>
+  +client_id : INT <<PK>>
+  --
+  name : NVARCHAR(100)
+  phone : NVARCHAR(20)
+  email : NVARCHAR(100)
 }
 
-' =========================
-' CART
-' =========================
-
-class Cart {
-    - id: int
-    - clientId: int
-    - created_at: datetime
-    - total: decimal
-    --
-    + addItem(product: Product, qty: int): void
-    + removeItem(productId: int): void
-    + updateQuantity(productId: int, qty: int): void
-    + clear(): void
-    + getItems(): List<CartItem>
+class CartPayment {
+  +cart_payment_id : INT <<PK>>
+  --
+  client_id : INT <<FK>>
+  total_amount : DECIMAL(10,2)
+  payment_method : NVARCHAR(30)
+  payment_status : NVARCHAR(30)
+  created_at : DATETIME2
 }
-
-' =========================
-' CART ITEM
-' =========================
-
-class CartItem {
-    - id: int
-    - cart_id: int
-    - product_id: int
-    - quantity: int
-    - price: decimal
-    --
-    + getSubtotal(): decimal
-    + updateQuantity(qty: int): void
-    + remove(): void
-}
-
-' =========================
-' PRODUCT
-' =========================
-
-class Product {
-    - id: int
-    - name: string
-    - description: text
-    - price: decimal
-    - imageUrl: string
-    - category_id: int
-    - status: string
-    --
-    + getInfo(): void
-    + updateProduct(): void
-    + isAvailable(): boolean
-}
-
-' =========================
-' CATEGORY
-' =========================
 
 class Category {
-    - id: int
-    - name: string
-    - description: string
-    --
-    + addCategory(): void
-    + updateCategory(): void
-    + deleteCategory(): void
-    + getProducts(): List<Product>
+  +category_id : INT <<PK>>
+  --
+  name : NVARCHAR(100)
+  description : NVARCHAR(300)
 }
 
-' =========================
-' ORDER
-' =========================
-
-class Order {
-    - id: int
-    - client_id: int
-    - order_date: datetime
-    - status: string
-    - total_amount: decimal
-    - address: string
-    - comment: string
-    --
-    + create(): void
-    + updateStatus(status: string): void
-    + cancel(): void
-    + getItems(): List<OrderItem>
+class Product {
+  +product_id : INT <<PK>>
+  --
+  name : NVARCHAR(100)
+  description : NVARCHAR(300)
+  price : DECIMAL(10,2)
+  size : NVARCHAR(20)
+  color : NVARCHAR(30)
+  quantity : INT
+  category_id : INT <<FK>>
+  warehouse_id : INT <<FK>>
 }
-
-' =========================
-' ORDER ITEM
-' =========================
-
-class OrderItem {
-    - id: int
-    - order_id: int
-    - product_id: int
-    - quantity: int
-    - price: decimal
-    --
-    + getSubtotal(): decimal
-    + getQuantity(): int
-    + getProduct(): Product
-}
-
-' =========================
-' PAYMENT
-' =========================
-
-class Payment {
-    - id: int
-    - order_id: int
-    - amount: decimal
-    - method: string
-    - status: string
-    - transaction_id: string
-    - paid_at: datetime
-    --
-    + pay(): boolean
-    + checkStatus(): void
-    + refund(): void
-}
-
-' =========================
-' WAREHOUSE
-' =========================
 
 class Warehouse {
-    - id: int
-    - name: string
-    - address: string
-    - phone: string
-    --
-    + addProduct(product: Product): void
-    + updateProduct(product: Product): void
-    + getProducts(): List<Product>
+  +warehouse_id : INT <<PK>>
+  --
+  warehouse_name : NVARCHAR(100)
+  city : NVARCHAR(50)
+  address : NVARCHAR(200)
+  employee_name : NVARCHAR(100)
+  employee_phone : NVARCHAR(20)
 }
 
-' =========================
-' WAREHOUSE EMPLOYEE
-' =========================
-
-class WarehouseEmployee {
-    - id: int
-    - name: string
-    - phone: string
-    - warehouse_id: int
-    --
-    + receiveProduct(product_id: int, quantity: int): void
-    + updateStock(product_id: int, quantity: int): void
-    + getWarehouseProducts(): List<Product>
+class Staff {
+  +staff_id : INT <<PK>>
+  --
+  name : NVARCHAR(100)
+  phone : NVARCHAR(20)
+  role : NVARCHAR(20)
 }
 
-' =========================
-' DELIVERY
-' =========================
+class Order {
+  +order_id : INT <<PK>>
+  --
+  client_id : INT <<FK>>
+  staff_id : INT <<FK>>
+  cart_payment_id : INT <<FK>>
+  product_id : INT <<FK>>
+  quantity : INT
+  price : DECIMAL(10,2)
+  total_amount : DECIMAL(10,2)
+  order_date : DATETIME2
+  status : NVARCHAR(30)
+  address : NVARCHAR(200)
+  delivery_time : DATETIME2
+  qr_scanned : BIT
+}
 
 class Delivery {
-    - id: int
-    - order_id: int
-    - courier_name: string
-    - tracking_number: string
-    - delivery_address: string
-    - created_at: datetime
-    --
-    + create(): void
-    + updateStatus(status: string): void
-    + getTracking(): string
+  +delivery_id : INT <<PK>>
+  --
+  order_id : INT <<FK, UNIQUE>>
+  courier_name : NVARCHAR(100)
+  courier_phone : NVARCHAR(20)
+  delivery_status : NVARCHAR(30)
+  delivered_at : DATETIME2
 }
 
-' =========================
-' MANAGER
-' =========================
+Client "1" -- "0..*" CartPayment : төлемдері
+Client "1" -- "0..*" Order : тапсырыстары
+Category "1" -- "0..*" Product : санатқа жатады
+Warehouse "1" -- "0..*" Product : сақтайды
+Product "1" -- "0..*" Order : тапсырыс тауары
+Staff "0..1" -- "0..*" Order : өңдейді
+CartPayment "0..1" -- "0..*" Order : төлемі
+Order "1" -- "0..1" Delivery : жеткізіледі
 
-class Manager {
-    - id: int
-    - name: string
-    - phone: string
-    - email: string
-    --
-    + viewOrders(): List<Order>
-    + updateOrder(order_id: int, status: string): void
-    + manageProducts(): void
-}
-
-' =========================
-' ADMIN
-' =========================
-
-class Admin {
-    - id: int
-    - name: string
-    - email: string
-    - password: string
-    --
-    + manageUsers(): void
-    + manageProducts(): void
-    + viewReports(): void
-    + deleteOrder(): void
-}
-
-' =========================
-' RELATIONSHIPS
-' =========================
-
-Client "1" -- "1" Cart : себет қолданады
-Client "1" -- "*" Order : жасайды
-
-Cart "1" *-- "*" CartItem : құрамында
-
-CartItem "*" --> "1" Product : тауарға сілтеме
-
-Category "1" -- "*" Product : тиесілі
-
-Product "*" -- "*" Category : категориясы
-
-Order "1" *-- "*" OrderItem : құрамында
-OrderItem "*" --> "1" Product : тауар
-
-Order "1" -- "1" Payment : төлемі
-Order "1" -- "1" Delivery : жеткізіледі
-
-Warehouse "1" *-- "*" WarehouseEmployee : қызметкерлері
-
-Warehouse "1" -- "*" Product : сақтайды
-
-Manager "1" -- "*" Order : басқарады
-Manager "1" -- "*" Product : басқарады
-
-Admin "1" -- "*" Client : қолданушыларды басқарады
-Admin "1" -- "*" Product : тауарларды басқарады
-Admin "1" -- "*" Order : тапсырыстарды басқарады
-
-WarehouseEmployee "1" -- "*" Product : қорын басқарады
-
+legend bottom
+  PK — бастапқы кілт
+  FK — сыртқы кілт
+  1 — бір жазба
+  0..* — нөл немесе бірнеше жазба
+endlegend
 @enduml

@@ -1,0 +1,83 @@
+@startuml
+title UML Sequence Diagram – Онлайн киім дүкені\n(Негізгі Use Case: Тапсырыс жасау)
+
+skinparam backgroundColor white
+skinparam sequence {
+    ArrowColor #1677FF
+    LifeLineBorderColor #168BFF
+    LifeLineBackgroundColor #EAF4FF
+    ParticipantBorderColor #168BFF
+    ParticipantBackgroundColor #DCEEFF
+    ActorBorderColor #FF4DA6
+    ActorBackgroundColor #FFF0F7
+    BoxBorderColor #6C63FF
+    ActivationBorderColor #1677FF
+    ActivationBackgroundColor #CDE3FF
+}
+
+actor "Клиент\n(пайдаланушы)" as Client
+participant "Веб-қосымша\n(сайт/қосымша)" as Web
+participant "Тапсырыс қызметі\n(бизнес-логика)" as Order
+database "Дерекқор\n(мәліметтер базасы)" as DB
+participant "Жеткізу қызметі\n(тасымалдау)" as Delivery
+participant "Хабарлама қызметі\n(email/SMS)" as Notification
+
+Client -> Web: 1. Сайтқа кіру
+activate Web
+Web --> Client: 2. Негізгі бет көрсетіледі
+deactivate Web
+
+Client -> Web: 3. Тауарды таңдау
+activate Web
+Web --> Client: 4. Тауар туралы ақпарат
+deactivate Web
+
+Client -> Web: 5. Себетке қосу
+activate Web
+Web --> Client: 6. Себет жаңартылады
+deactivate Web
+
+Client -> Web: 7. Тапсырысты рәсімдеу\n(жеткізу деректері, төлем әдісі)
+activate Web
+Web -> Order: 8. Тапсырысты жіберу\n(деректер)
+activate Order
+
+Order -> DB: 9. Тапсырысты сақтау
+activate DB
+DB --> Order: 10. Сақталды\n(тапсырыс ID)
+deactivate DB
+
+Order -> Delivery: 11. Жеткізу қызметіне тапсырыс беру
+activate Delivery
+Delivery --> Order: 12. Жеткізу расталды\n(жеткізу мерзімі)
+deactivate Delivery
+
+Order -> Notification: 13. Хабарлама жіберу
+activate Notification
+Notification --> Order: 14. Хабарлама жіберілді
+deactivate Notification
+
+Order --> Web: 15. Тапсырыс мәртебесі\n(ID, күйі, жеткізу мерзімі)
+deactivate Order
+Web --> Client: 16. Тапсырыс расталады\n(хабарлама)
+deactivate Web
+
+alt Төлем сәтті болса
+    Order -> DB: 17. Төлемді өңдеу\n(төлем мәліметі)
+    activate DB
+    DB --> Order: 18. Төлем расталды
+    deactivate DB
+    Order --> Client: 19. Клиентке растау\n(тапсырыс қабылданды)
+else Төлем сәтсіз болса
+    Order --> Client: 20. Тапсырыс қайтарылады\n(төлем сәтсіз)
+end
+
+legend bottom
+    |= Белгілердің түсіндірмесі |
+    | -> | Сұрау (call) |
+    | --> | Жауап (return) |
+    |<back:#CDE3FF> Активтілік </back>| Орындалу уақыты |
+    | Жіңішке тік сызық | Өмір сүру сызығы (lifeline) |
+endlegend
+
+@enduml
