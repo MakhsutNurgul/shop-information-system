@@ -1,341 +1,311 @@
--- ============================================
--- ONLINE CLOTHING STORE
--- 13 КЕСТЕ
--- БАРЛЫҒЫ БАЙЛАНЫСҚАН
--- ============================================
 
-USE master;
+-- 1. Жаңа дерекқор құру
+    CREATE DATABASE OnlineStore;
 GO
 
--- Егер база бұрын бар болса, өшіреміз
-IF DB_ID('OnlineClothingStore') IS NOT NULL
-BEGIN
-    ALTER DATABASE OnlineClothingStore
-    SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-
-    DROP DATABASE OnlineClothingStore;
-END
+USE OnlineStore;
 GO
 
--- ============================================
--- DATABASE ҚҰРУ
--- ============================================
-
-CREATE DATABASE OnlineClothingStore;
-GO
-
-USE OnlineClothingStore;
-GO
-
-
--- ============================================
--- 1. ADMIN — ӘКІМШІ
--- ============================================
-
-CREATE TABLE Admin
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
+-- 2. Клиент
+CREATE TABLE Client (
+    client_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
-    email NVARCHAR(100),
-    password NVARCHAR(100)
+    phone NVARCHAR(20),
+    email NVARCHAR(100)
 );
 GO
 
-
--- ============================================
--- 2. MANAGER — МЕНЕДЖЕР
--- ============================================
-
-CREATE TABLE Manager
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
+-- 3. Қызметкерлер: Admin + Manager біріктірілді
+CREATE TABLE Staff (
+    staff_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
-    phone NVARCHAR(30),
-    email NVARCHAR(100),
-
-    admin_id INT,
-
-    FOREIGN KEY (admin_id)
-        REFERENCES Admin(id)
+    phone NVARCHAR(20),
+    role NVARCHAR(20) NOT NULL
+        CHECK (role IN (N'Admin', N'Manager'))
 );
 GO
 
-
--- ============================================
--- 3. CLIENT — КЛИЕНТ
--- ============================================
-
-CREATE TABLE Client
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
+-- 4. Санат
+CREATE TABLE Category (
+    category_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
-    phone NVARCHAR(30),
-    email NVARCHAR(100),
-    address NVARCHAR(200),
-    password NVARCHAR(100),
-
-    admin_id INT,
-
-    FOREIGN KEY (admin_id)
-        REFERENCES Admin(id)
+    description NVARCHAR(300)
 );
 GO
 
-
--- ============================================
--- 4. CATEGORY — САНАТ
--- ============================================
-
-CREATE TABLE Category
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
+-- 5. Тауар: status бағаны жоқ
+CREATE TABLE Product (
+    product_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
-    description NVARCHAR(500),
-
-    admin_id INT,
-
-    FOREIGN KEY (admin_id)
-        REFERENCES Admin(id)
-);
-GO
-
-
--- ============================================
--- 5. WAREHOUSE — ҚОЙМА
--- ============================================
-
-CREATE TABLE Warehouse
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    name NVARCHAR(100) NOT NULL,
-    address NVARCHAR(200),
-    phone NVARCHAR(30),
-
-    admin_id INT,
-    manager_id INT,
-
-    FOREIGN KEY (admin_id)
-        REFERENCES Admin(id),
-
-    FOREIGN KEY (manager_id)
-        REFERENCES Manager(id)
-);
-GO
-
-
--- ============================================
--- 6. WAREHOUSE EMPLOYEE — ҚОЙМА ҚЫЗМЕТКЕРІ
--- ============================================
-
-CREATE TABLE WarehouseEmployee
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    name NVARCHAR(100) NOT NULL,
-    phone NVARCHAR(30),
-    position NVARCHAR(100),
-
-    warehouse_id INT,
-    manager_id INT,
-
-    FOREIGN KEY (warehouse_id)
-        REFERENCES Warehouse(id),
-
-    FOREIGN KEY (manager_id)
-        REFERENCES Manager(id)
-);
-GO
-
-
--- ============================================
--- 7. PRODUCT — ТАУАР
--- ============================================
-
-CREATE TABLE Product
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    name NVARCHAR(150) NOT NULL,
-    description NVARCHAR(500),
-    price DECIMAL(10,2) NOT NULL,
-    image_url NVARCHAR(300),
-    status NVARCHAR(50),
-
+    description NVARCHAR(300),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    size NVARCHAR(20),
+    color NVARCHAR(30),
+    quantity INT NOT NULL DEFAULT 0 CHECK (quantity >= 0),
     category_id INT,
-    warehouse_id INT,
-    manager_id INT,
-    admin_id INT,
-
-    FOREIGN KEY (category_id)
-        REFERENCES Category(id),
-
-    FOREIGN KEY (warehouse_id)
-        REFERENCES Warehouse(id),
-
-    FOREIGN KEY (manager_id)
-        REFERENCES Manager(id),
-
-    FOREIGN KEY (admin_id)
-        REFERENCES Admin(id)
+    FOREIGN KEY (category_id) REFERENCES Category(category_id)
 );
 GO
 
-
--- ============================================
--- 8. CART — СЕБЕТ
--- ============================================
-
-CREATE TABLE Cart
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    client_id INT NOT NULL,
-    created_at DATETIME DEFAULT GETDATE(),
-    total DECIMAL(10,2) DEFAULT 0,
-
-    FOREIGN KEY (client_id)
-        REFERENCES Client(id)
-);
-GO
-
-
--- ============================================
--- 9. CART ITEM — СЕБЕТТЕГІ ТАУАР
--- ============================================
-
-CREATE TABLE CartItem
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    cart_id INT NOT NULL,
-    product_id INT NOT NULL,
-    quantity INT NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-
-    FOREIGN KEY (cart_id)
-        REFERENCES Cart(id),
-
-    FOREIGN KEY (product_id)
-        REFERENCES Product(id)
-);
-GO
-
-
--- ============================================
--- 10. ORDER — ТАПСЫРЫС
--- ============================================
-
-CREATE TABLE [Order]
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    client_id INT NOT NULL,
-    manager_id INT,
-    admin_id INT,
-
-    order_date DATETIME DEFAULT GETDATE(),
-    status NVARCHAR(50),
-    total_amount DECIMAL(10,2),
+-- 6. Бір қойма және қойма қызметкері бір кестеде
+CREATE TABLE Warehouse (
+    warehouse_id INT IDENTITY(1,1) PRIMARY KEY,
+    warehouse_name NVARCHAR(100) NOT NULL,
+    city NVARCHAR(50) NOT NULL DEFAULT N'Алматы',
     address NVARCHAR(200),
-    comment NVARCHAR(500),
-
-    FOREIGN KEY (client_id)
-        REFERENCES Client(id),
-
-    FOREIGN KEY (manager_id)
-        REFERENCES Manager(id),
-
-    FOREIGN KEY (admin_id)
-        REFERENCES Admin(id)
+    employee_name NVARCHAR(100),
+    employee_phone NVARCHAR(20)
 );
 GO
 
+-- 7. Себет пен төлем біріктірілді
+CREATE TABLE CartPayment (
+    cart_payment_id INT IDENTITY(1,1) PRIMARY KEY,
+    client_id INT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+    payment_method NVARCHAR(30) NOT NULL
+        CHECK (payment_method IN (
+            N'Kaspi карта',
+            N'Halyk карта'
+        )),
+    payment_status NVARCHAR(30) NOT NULL
+        DEFAULT N'Күтілуде',
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    FOREIGN KEY (client_id) REFERENCES Client(client_id)
+);
+GO
 
--- ============================================
--- 11. ORDER ITEM — ТАПСЫРЫС ПОЗИЦИЯСЫ
--- ============================================
-
-CREATE TABLE OrderItem
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    order_id INT NOT NULL,
+-- 8. Order мен OrderItem біріктірілді
+-- Әр тапсырыс жазбасында бір тауар көрсетіледі
+CREATE TABLE [Order] (
+    order_id INT IDENTITY(1,1) PRIMARY KEY,
+    client_id INT NOT NULL,
+    staff_id INT,
+    cart_payment_id INT,
     product_id INT NOT NULL,
-    quantity INT NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    total_amount AS (quantity * price) PERSISTED,
+    order_date DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    status NVARCHAR(30) NOT NULL DEFAULT N'Жаңа',
+    address NVARCHAR(200),
+    delivery_time DATETIME2,
+    qr_scanned BIT NOT NULL DEFAULT 0,
 
-    FOREIGN KEY (order_id)
-        REFERENCES [Order](id),
-
-    FOREIGN KEY (product_id)
-        REFERENCES Product(id)
+    FOREIGN KEY (client_id) REFERENCES Client(client_id),
+    FOREIGN KEY (staff_id) REFERENCES Staff(staff_id),
+    FOREIGN KEY (cart_payment_id)
+        REFERENCES CartPayment(cart_payment_id),
+    FOREIGN KEY (product_id) REFERENCES Product(product_id)
 );
 GO
 
-
--- ============================================
--- 12. PAYMENT — ТӨЛЕМ
--- ============================================
-
-CREATE TABLE Payment
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    order_id INT NOT NULL,
-    admin_id INT,
-
-    amount DECIMAL(10,2) NOT NULL,
-    method NVARCHAR(50),
-    status NVARCHAR(50),
-    transaction_id NVARCHAR(100),
-    paid_at DATETIME,
-
-    FOREIGN KEY (order_id)
-        REFERENCES [Order](id),
-
-    FOREIGN KEY (admin_id)
-        REFERENCES Admin(id)
-);
-GO
-
-
--- ============================================
--- 13. DELIVERY — ЖЕТКІЗУ
--- ============================================
-
-CREATE TABLE Delivery
-(
-    id INT PRIMARY KEY IDENTITY(1,1),
-    order_id INT NOT NULL,
-    manager_id INT,
-    warehouse_employee_id INT,
-
+-- 9. Жеткізу
+CREATE TABLE Delivery (
+    delivery_id INT IDENTITY(1,1) PRIMARY KEY,
+    order_id INT NOT NULL UNIQUE,
     courier_name NVARCHAR(100),
-    tracking_number NVARCHAR(100),
-    status NVARCHAR(50),
-    delivery_address NVARCHAR(200),
-    delivered_at DATETIME,
-
-    FOREIGN KEY (order_id)
-        REFERENCES [Order](id),
-
-    FOREIGN KEY (manager_id)
-        REFERENCES Manager(id),
-
-    FOREIGN KEY (warehouse_employee_id)
-        REFERENCES WarehouseEmployee(id)
+    courier_phone NVARCHAR(20),
+    delivery_status NVARCHAR(30) NOT NULL DEFAULT N'Дайындалуда',
+    delivered_at DATETIME2,
+    FOREIGN KEY (order_id) REFERENCES [Order](order_id)
 );
 GO
 
-
--- ============================================
--- БАРЛЫҚ 13 КЕСТЕНІ ТЕКСЕРУ
--- ============================================
-
-SELECT TABLE_NAME
-FROM INFORMATION_SCHEMA.TABLES
-WHERE TABLE_TYPE = 'BASE TABLE'
-ORDER BY TABLE_NAME;
+-- 10. Алматыдағы бір қойманы енгізу
+INSERT INTO Warehouse (
+    warehouse_name, city, address,
+    employee_name, employee_phone
+)
+VALUES (
+    N'Негізгі қойма',
+    N'Алматы',
+    N'Алматы қаласы',
+    N'Қойма қызметкері',
+    N'87000000000'
+);
 GO
 
--- ============================================
--- ТЕКСЕРУ
--- ============================================
-create table univer(
-    id int primary key,
-    name varchar(50),
-    age int check (Age >= 21));
+-- 11. Мысал ретінде санаттар қосу
+INSERT INTO Category (name, description)
+VALUES
+(N'Футболка', N'Күнделікті киім'),
+(N'Шалбар', N'Ерлер мен әйелдерге арналған'),
+(N'Көйлек', N'Әйелдер киімі');
+GO
 
+-- 12. Тауарлар қосу
+INSERT INTO Product (
+    name, description, price, size, color, quantity, category_id
+)
+VALUES
+(N'Ақ футболка', N'Мақтадан жасалған', 5000, N'M', N'Ақ', 20, 1),
+(N'Қара шалбар', N'Классикалық үлгі', 12000, N'L', N'Қара', 10, 2),
+(N'Көк көйлек', N'Күнделікті киім', 15000, N'M', N'Көк', 8, 3);
+GO
+
+-- 13. Тексеру
+SELECT * FROM Client;
+SELECT * FROM Staff;
+SELECT * FROM Category;
+SELECT * FROM Product;
+SELECT * FROM Warehouse;
+SELECT * FROM CartPayment;
+SELECT * FROM [Order];
+SELECT * FROM Delivery;
+
+
+
+-- Product кестесіне қойма ID-сін қосу
+ALTER TABLE Product
+ADD warehouse_id INT;
+
+-- Warehouse кестесімен байланыстыру
+ALTER TABLE Product
+ADD CONSTRAINT FK_Product_Warehouse
+FOREIGN KEY (warehouse_id)
+REFERENCES Warehouse(warehouse_id);
+UPDATE Product
+SET warehouse_id = (
+    SELECT TOP 1 warehouse_id
+    FROM Warehouse
+    WHERE city = N'Алматы'
+);
+
+USE OnlineStore;
+GO
+
+-- 1. Клиенттер
+INSERT INTO Client (name, phone, email)
+VALUES
+(N'Айдана Сәрсенова', N'87011111111', N'aidana@mail.kz'),
+(N'Аружан Мұратова', N'87022222222', N'aruzhan@mail.kz'),
+(N'Данияр Әлиев', N'87033333333', N'daniyar@mail.kz'),
+(N'Мадина Қасымова', N'87044444444', N'madina@mail.kz'),
+(N'Нұрсұлтан Ермеков', N'87055555555', N'nursultan@mail.kz');
+
+-- 2. Қызметкерлер
+INSERT INTO Staff (name, phone, role)
+VALUES
+(N'Әлия Нұрланова', N'87066666666', N'Admin'),
+(N'Ержан Болатұлы', N'87077777777', N'Manager');
+
+-- 3. Төлемдер
+INSERT INTO CartPayment
+    (client_id, total_amount, payment_method, payment_status)
+VALUES
+(1, 5000, N'Kaspi карта', N'Төленді'),
+(2, 12000, N'Halyk карта', N'Күтілуде'),
+(3, 15000, N'Kaspi карта', N'Төленді'),
+(4, 10000, N'Halyk карта', N'Төленді'),
+(5, 24000, N'Kaspi карта', N'Күтілуде');
+GO
+
+-- Тапсырыстар
+INSERT INTO [Order]
+(
+    client_id,
+    staff_id,
+    cart_payment_id,
+    product_id,
+    quantity,
+    price,
+    status,
+    address,
+    delivery_time
+)
+VALUES
+(
+    1, 2, 1, 1, 1, 5000,
+    N'Жаңа',
+    N'Алматы қаласы, Абай көшесі, 10',
+    '2026-10-14T14:00:00'
+),
+(
+    2, 2, 2, 2, 1, 12000,
+    N'Өңделуде',
+    N'Алматы қаласы, Достық көшесі, 25',
+    '2026-10-14T16:00:00'
+),
+(
+    3, 2, 3, 3, 1, 15000,
+    N'Дайындалуда',
+    N'Алматы қаласы, Төле би көшесі, 40',
+    '2026-10-15T12:00:00'
+);
+GO
+
+-- Жеткізу деректері
+INSERT INTO Delivery
+    (order_id, courier_name, courier_phone, delivery_status)
+VALUES
+(1, N'Асқар', N'87088888881', N'Дайындалуда'),
+(2, N'Марат', N'87088888882', N'Курьерге берілді'),
+(3, N'Әділет', N'87088888883', N'Дайындалуда');
+GO
+
+
+
+
+INSERT INTO Category (name, description)
+VALUES
+(N'Күртеше', N'Қысқы және күзгі сыртқы киім'),
+(N'Юбка', N'Әйелдерге арналған юбкалар'),
+(N'Аяқ киім', N'Күнделікті және классикалық аяқ киім'),
+(N'Худи', N'Күнделікті спорттық киім'),
+(N'Жейде', N'Ерлер мен әйелдерге арналған жейделер'),
+(N'Спорттық киім', N'Спортпен айналысуға арналған киім'),
+(N'Пальто', N'Суық мезгілге арналған сыртқы киім'),
+(N'Свитер', N'Жылы тоқылған киім');
+
+INSERT INTO Product
+    (name, description, price, size, color, quantity, category_id)
+VALUES
+(N'Қара күртеше', N'Күзгі күндерге арналған', 25000, N'L', N'Қара', 12, 4),
+(N'Ақ худи', N'Мақта матадан жасалған', 14000, N'M', N'Ақ', 15, 7),
+(N'Көк жейде', N'Классикалық үлгі', 11000, N'L', N'Көк', 18, 8),
+(N'Қара юбка', N'Күнделікті киюге арналған', 9000, N'M', N'Қара', 10, 5),
+(N'Қысқы пальто', N'Жылы әрі ыңғайлы', 45000, N'L', N'Сұр', 7, 10),
+(N'Спорттық костюм', N'Спортқа арналған киім', 22000, N'M', N'Қара', 14, 9),
+(N'Ақ футболка Premium', N'Сапалы мақта', 7500, N'S', N'Ақ', 25, 1),
+(N'Классикалық шалбар', N'Кеңсе стиліне арналған', 18000, N'L', N'Қара', 11, 2),
+(N'Көк көйлек Premium', N'Жеңіл матадан тігілген', 20000, N'M', N'Көк', 9, 3);
+
+
+INSERT INTO [Order]
+(
+    client_id,
+    staff_id,
+    cart_payment_id,
+    product_id,
+    quantity,
+    price,
+    status,
+    address,
+    delivery_time
+)
+VALUES
+(1, 2, 1, 1, 2, 5000, N'Жаңа',
+ N'Алматы қаласы, Абай көшесі, 15', '2026-10-14T10:00:00'),
+
+(2, 2, 2, 2, 1, 12000, N'Өңделуде',
+ N'Алматы қаласы, Достық көшесі, 20', '2026-10-14T14:00:00'),
+
+(3, 2, 3, 3, 1, 15000, N'Дайындалуда',
+ N'Алматы қаласы, Төле би көшесі, 30', '2026-10-15T12:00:00'),
+
+(4, 2, 4, 4, 2, 9000, N'Жаңа',
+ N'Алматы қаласы, Абылай хан көшесі, 40', '2026-10-15T16:00:00'),
+
+(5, 2, 5, 5, 1, 24000, N'Өңделуде',
+ N'Алматы қаласы, Сәтбаев көшесі, 50', '2026-10-16T11:00:00');
+
+
+
+
+UPDATE Warehouse
+SET
+    employee_name = N'Аслан Нұрбеков',
+    employee_phone = N'87012345678'
+WHERE city = N'Алматы';
+GO
