@@ -24,7 +24,7 @@
 
 ## Жоба құрылымы
 
-```text
+
 shop-information-system/
 │
 ├── README.md
@@ -32,32 +32,27 @@ shop-information-system/
 └── docs/
     ├── requirements.md
     ├── use-case.md
+    ├── class.md
+    ├── sequence.md
+    ├── class-diagram.puml
+    ├── sequence.puml
+    ├── use-case.puml
     └── diagrams/
-        └── system-diagram.md
-```
+         ├── use-case.jpg
+         ├── class.jpg
+         └── sequence.jpg
+
 
 ## Қолданылатын технологиялар
 
 * Git
 * GitHub
-* Markdown
 * Ақпараттық жүйені жобалау әдістері
 
-## Нұсқаларды басқару
-
-Жоба нұсқаларды басқару үшін Git жүйесін пайдаланады.
-
-Негізгі branch:
-
-```text
-main
-```
-
-Жаңа функционалдарды әзірлеу үшін жеке branch қолданылады.
 
 ## Автор
 
-Студент: Инкәр
+Студент: Махсұт Нұргүл
 
 ## Зертханалық жұмыс
 
