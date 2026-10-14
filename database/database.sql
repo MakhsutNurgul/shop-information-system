@@ -309,3 +309,5 @@ SET
     employee_phone = N'87012345678'
 WHERE city = N'Алматы';
 GO
+
+-- Бұл тексеріс
