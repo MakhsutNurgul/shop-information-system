@@ -1,12 +1,11 @@
 
--- 1. Жаңа дерекқор құру
     CREATE DATABASE OnlineStore;
 GO
 
 USE OnlineStore;
 GO
 
--- 2. Клиент
+
 CREATE TABLE Client (
     client_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
@@ -15,7 +14,7 @@ CREATE TABLE Client (
 );
 GO
 
--- 3. Қызметкерлер: Admin + Manager біріктірілді
+
 CREATE TABLE Staff (
     staff_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
@@ -25,7 +24,7 @@ CREATE TABLE Staff (
 );
 GO
 
--- 4. Санат
+
 CREATE TABLE Category (
     category_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
@@ -33,7 +32,7 @@ CREATE TABLE Category (
 );
 GO
 
--- 5. Тауар: status бағаны жоқ
+
 CREATE TABLE Product (
     product_id INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
@@ -47,7 +46,7 @@ CREATE TABLE Product (
 );
 GO
 
--- 6. Бір қойма және қойма қызметкері бір кестеде
+
 CREATE TABLE Warehouse (
     warehouse_id INT IDENTITY(1,1) PRIMARY KEY,
     warehouse_name NVARCHAR(100) NOT NULL,
@@ -58,7 +57,7 @@ CREATE TABLE Warehouse (
 );
 GO
 
--- 7. Себет пен төлем біріктірілді
+
 CREATE TABLE CartPayment (
     cart_payment_id INT IDENTITY(1,1) PRIMARY KEY,
     client_id INT NOT NULL,
@@ -75,8 +74,7 @@ CREATE TABLE CartPayment (
 );
 GO
 
--- 8. Order мен OrderItem біріктірілді
--- Әр тапсырыс жазбасында бір тауар көрсетіледі
+
 CREATE TABLE [Order] (
     order_id INT IDENTITY(1,1) PRIMARY KEY,
     client_id INT NOT NULL,
@@ -100,7 +98,7 @@ CREATE TABLE [Order] (
 );
 GO
 
--- 9. Жеткізу
+
 CREATE TABLE Delivery (
     delivery_id INT IDENTITY(1,1) PRIMARY KEY,
     order_id INT NOT NULL UNIQUE,
@@ -112,7 +110,7 @@ CREATE TABLE Delivery (
 );
 GO
 
--- 10. Алматыдағы бір қойманы енгізу
+
 INSERT INTO Warehouse (
     warehouse_name, city, address,
     employee_name, employee_phone
@@ -126,7 +124,7 @@ VALUES (
 );
 GO
 
--- 11. Мысал ретінде санаттар қосу
+
 INSERT INTO Category (name, description)
 VALUES
 (N'Футболка', N'Күнделікті киім'),
@@ -134,7 +132,7 @@ VALUES
 (N'Көйлек', N'Әйелдер киімі');
 GO
 
--- 12. Тауарлар қосу
+
 INSERT INTO Product (
     name, description, price, size, color, quantity, category_id
 )
@@ -144,7 +142,6 @@ VALUES
 (N'Көк көйлек', N'Күнделікті киім', 15000, N'M', N'Көк', 8, 3);
 GO
 
--- 13. Тексеру
 SELECT * FROM Client;
 SELECT * FROM Staff;
 SELECT * FROM Category;
@@ -156,11 +153,11 @@ SELECT * FROM Delivery;
 
 
 
--- Product кестесіне қойма ID-сін қосу
+
 ALTER TABLE Product
 ADD warehouse_id INT;
 
--- Warehouse кестесімен байланыстыру
+
 ALTER TABLE Product
 ADD CONSTRAINT FK_Product_Warehouse
 FOREIGN KEY (warehouse_id)
@@ -175,7 +172,7 @@ SET warehouse_id = (
 USE OnlineStore;
 GO
 
--- 1. Клиенттер
+
 INSERT INTO Client (name, phone, email)
 VALUES
 (N'Айдана Сәрсенова', N'87011111111', N'aidana@mail.kz'),
@@ -184,13 +181,13 @@ VALUES
 (N'Мадина Қасымова', N'87044444444', N'madina@mail.kz'),
 (N'Нұрсұлтан Ермеков', N'87055555555', N'nursultan@mail.kz');
 
--- 2. Қызметкерлер
+
 INSERT INTO Staff (name, phone, role)
 VALUES
 (N'Әлия Нұрланова', N'87066666666', N'Admin'),
 (N'Ержан Болатұлы', N'87077777777', N'Manager');
 
--- 3. Төлемдер
+
 INSERT INTO CartPayment
     (client_id, total_amount, payment_method, payment_status)
 VALUES
@@ -201,7 +198,7 @@ VALUES
 (5, 24000, N'Kaspi карта', N'Күтілуде');
 GO
 
--- Тапсырыстар
+
 INSERT INTO [Order]
 (
     client_id,
@@ -235,7 +232,7 @@ VALUES
 );
 GO
 
--- Жеткізу деректері
+
 INSERT INTO Delivery
     (order_id, courier_name, courier_phone, delivery_status)
 VALUES
@@ -313,3 +310,5 @@ GO
 -- Бұл тексеріс
 
 --Бұл екінші тексеріс
+
+
