@@ -324,3 +324,6 @@ JOIN CartPayment cp
     ON o.cart_payment_id = cp.cart_payment_id
 WHERE cp.payment_status = N'Төленді'
   AND o.price BETWEEN 10000 AND 15000;
+
+
+  -- 1 тексеріс
