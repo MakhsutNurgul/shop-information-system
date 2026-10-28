@@ -306,3 +306,21 @@ SET
     employee_phone = N'87012345678'
 WHERE city = N'Алматы';
 GO
+
+
+SELECT
+    o.order_id,
+    c.name AS client_name,
+    p.name AS product_name,
+    o.price,
+    cp.payment_status,
+    o.status AS order_status
+FROM [Order] o
+JOIN Client c
+    ON o.client_id = c.client_id
+JOIN Product p
+    ON o.product_id = p.product_id
+JOIN CartPayment cp
+    ON o.cart_payment_id = cp.cart_payment_id
+WHERE cp.payment_status = N'Төленді'
+  AND o.price BETWEEN 10000 AND 15000;
