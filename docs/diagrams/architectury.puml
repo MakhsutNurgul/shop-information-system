@@ -1,0 +1,147 @@
+@startuml
+
+top to bottom direction
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam nodesep 35
+skinparam ranksep 50
+skinparam ArrowThickness 1.5
+
+skinparam package {
+  BorderColor #477FA8
+  FontColor #183650
+  FontStyle bold
+}
+
+skinparam component {
+  BackgroundColor #FFFFFF
+  BorderColor #5685A8
+  FontColor #172B40
+}
+
+skinparam database {
+  BackgroundColor #D6F2E3
+  BorderColor #419B76
+}
+
+title OnlineStore — Үш деңгейлі архитектура
+
+' =================================
+' ПАЙДАЛАНУШЫЛАР
+' =================================
+
+rectangle "ПАЙДАЛАНУШЫЛАР" #F1F3F5 {
+
+  actor "Клиент" as Client
+  actor "Әкімші" as Admin
+  actor "Менеджер" as Manager
+  actor "Қойма\nқызметкері" as WarehouseStaff
+  actor "Курьер" as Courier
+
+  Client -[hidden]right- Admin
+  Admin -[hidden]right- Manager
+  Manager -[hidden]right- WarehouseStaff
+  WarehouseStaff -[hidden]right- Courier
+}
+
+' =================================
+' 1-ДЕҢГЕЙ: ПРЕЗЕНТАЦИЯ
+' =================================
+
+package "1. ПРЕЗЕНТАЦИЯ ДЕҢГЕЙІ\nPresentation Layer" #DCEEFF {
+
+  component "ПАЙДАЛАНУШЫ ИНТЕРФЕЙСІ (UI)\n\nТіркелу және жүйеге кіру\nТауарларды қарау және іздеу\nТапсырыс беру\nТөлем жасау\nБасқару панелі\nҚойма интерфейсі\nКурьер интерфейсі" as UI #E8F3FF
+
+}
+
+' =================================
+' 2-ДЕҢГЕЙ: ҚОЛДАНБАЛЫ ЛОГИКА
+' =================================
+
+package "2. ҚОЛДАНБАЛЫ ЛОГИКА ДЕҢГЕЙІ\nBusiness Logic Layer" #E5F5E9 {
+
+  component "Авторизация модулі\n\nПайдаланушыны тексеру\nРөлдерді анықтау" as Auth
+
+  component "Каталог модулі\n\nТауарларды қарау\nСанаттарды басқару" as Catalog
+
+  component "Тапсырыс модулі\n\nТапсырысты қалыптастыру\nТапсырысты өңдеу\nМәртебесін өзгерту" as Orders
+
+  component "Төлем модулі\n\nKaspi карта\nHalyk карта\nТөлем күйін өңдеу" as Payment
+
+  component "Қойма модулі\n\nТауар қорын тексеру\nТапсырысты жинау\nҚойма ақпаратын басқару" as Warehouse
+
+  component "Жеткізу модулі\n\nКурьерді тағайындау\nЖеткізу мәртебесін жаңарту\nТапсырысты жеткізу" as Delivery
+
+  Auth -[hidden]right- Catalog
+  Catalog -[hidden]right- Orders
+  Orders -[hidden]right- Payment
+  Payment -[hidden]right- Warehouse
+  Warehouse -[hidden]right- Delivery
+}
+
+' =================================
+' 3-ДЕҢГЕЙ: ДЕРЕКТЕР
+' =================================
+
+package "3. ДЕРЕКТЕР ДЕҢГЕЙІ\nData Layer" #FFF0DD {
+
+  component "ДЕРЕКТЕРГЕ ҚОЛ ЖЕТКІЗУ\nData Access Layer (DAL)\n\nSQL сұраныстарын орындау\nДеректерді оқу және өзгерту\nДеректерді сақтау" as DAL #E9F2FA
+
+  database "Microsoft SQL Server\nOnlineStore дерекқоры\n\nClient\nStaff\nCategory\nProduct\nWarehouse\nCartPayment\nOrder\nDelivery" as DB
+
+}
+
+' =================================
+' ПАЙДАЛАНУШЫЛАР -> UI
+' =================================
+
+Client -down-> UI : Тапсырыс беру
+Admin -down-> UI : Басқару
+Manager -down-> UI : Өңдеу
+WarehouseStaff -down-> UI : Қойма операциялары
+Courier -down-> UI : Жеткізу мәртебесі
+
+' =================================
+' UI -> ҚОЛДАНБАЛЫ ЛОГИКА
+' =================================
+
+UI -down-> Auth : Авторизация
+UI -down-> Catalog : Каталог сұранысы
+UI -down-> Orders : Тапсырыс сұранысы
+UI -down-> Payment : Төлем сұранысы
+UI -down-> Warehouse : Қойма сұранысы
+UI -down-> Delivery : Жеткізу сұранысы
+
+' =================================
+' ҚОЛДАНБАЛЫ ЛОГИКА -> DAL
+' =================================
+
+Auth -down-> DAL
+Catalog -down-> DAL
+Orders -down-> DAL
+Payment -down-> DAL
+Warehouse -down-> DAL
+Delivery -down-> DAL
+
+' =================================
+' ДЕРЕКҚОРҒА СҰРАНЫС ЖӘНЕ ЖАУАП
+' =================================
+
+DAL -down-> DB : SQL сұранысы
+DB -up-> DAL : Деректер нәтижесі
+
+' =================================
+' КЕРІ ЖАУАП
+' =================================
+
+DAL -up-> Orders : Өңдеу нәтижесі
+Orders -up-> UI : Жауап
+UI -up-> Client : Нәтижені көрсету
+
+@enduml
